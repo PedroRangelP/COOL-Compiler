@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Antlr generation
+antlr/.antlr/
+antlr/*.interp
+antlr/*.tokens
+antlr/*.py
+
+# Pytest tag
+!__init__.py
