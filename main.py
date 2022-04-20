@@ -17,4 +17,4 @@ def dummy():
     raise SystemExit(1)
 
 if __name__ == '__main__':
-    compile('resources/semantic/input/anattributenamedself.cool')
+    compile('resources/semantic/input/self-assignment.cool')
