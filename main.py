@@ -15,4 +15,4 @@ def compile(file):
     walker.walk(semanticTwoListener(), tree)
 
 if __name__ == '__main__':
-    compile('resources/semantic/input/self-assignment.cool')
+    compile('resources/semantic/input/badarith.cool')
