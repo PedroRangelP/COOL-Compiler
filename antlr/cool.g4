@@ -9,8 +9,8 @@ klass
     ;
 
 feature
-    : ID '(' ( params+=formal (',' params+=formal)* )? ')' ':' TYPE '{' expr '}'
-    | ID ':' TYPE ( '<-' expr )?
+    : ID '(' ( params+=formal (',' params+=formal)* )? ')' ':' TYPE '{' expr '}'    #function
+    | ID ':' TYPE ( '<-' expr )?                                                    #attribute
     ;
 
 formal
@@ -19,27 +19,27 @@ formal
 
 expr
     :
-    primary
-    | ID '(' ( params+=expr ( ',' params+=expr)* )? ')'
-    | IF expr THEN expr ELSE expr FI
-    | WHILE expr LOOP expr POOL
-    | expr '.' ID '(' ( params+=expr  ( ',' params+=expr)* )? ')'
-    | LET let_decl ( ',' let_decl )* IN expr
-    | CASE expr OF (case_stat)+ ESAC
-    | NEW TYPE
-    | '{' ( expr ';' )+ '}'
-    | expr ( '@' TYPE )? '.' ID '(' ( params+=expr  ( ',' params+=expr)* )? ')'
-    | '˜' expr
-    | ISVOID expr
-    | expr '*' expr
-    | expr '/' expr
-    | expr '+' expr
-    | expr '-' expr
-    | expr '<' expr
-    | expr '<=' expr
-    | expr '=' expr
-    | 'not' expr
-    | <assoc=right> ID '<-' expr
+    primary                                                                         #expr_primary
+    | ID '(' ( params+=expr ( ',' params+=expr)* )? ')'                             #method
+    | IF expr THEN expr ELSE expr FI                                                #if_else
+    | WHILE expr LOOP expr POOL                                                     #while
+    | expr '.' ID '(' ( params+=expr  ( ',' params+=expr)* )? ')'                   #dispatch
+    | LET let_decl ( ',' let_decl )* IN expr                                        #let_in
+    | CASE expr OF (case_stat)+ ESAC                                                #case_of
+    | NEW TYPE                                                                      #args
+    | '{' ( expr ';' )+ '}'                                                         #content
+    | expr ( '@' TYPE )? '.' ID '(' ( params+=expr  ( ',' params+=expr)* )? ')'     #dispatch_static
+    | '˜' expr                                                                      #w
+    | ISVOID expr                                                                   #is_void
+    | expr '*' expr                                                                 #arith
+    | expr '/' expr                                                                 #arith
+    | expr '+' expr                                                                 #arith
+    | expr '-' expr                                                                 #arith
+    | expr '<' expr                                                                 #arith
+    | expr '<=' expr                                                                #arith
+    | expr '=' expr                                                                 #equals
+    | 'not' expr                                                                    #not
+    | <assoc=right> ID '<-' expr                                                    #assignment
     ;
 
 case_stat:
