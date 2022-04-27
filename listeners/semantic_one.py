@@ -2,7 +2,7 @@ from util.exceptions import *
 from antlr.coolListener import coolListener
 from antlr.coolParser import coolParser
 
-class dummyListener(coolListener):
+class semanticOneListener(coolListener):
 
     def __init__(self):
         self.main = False

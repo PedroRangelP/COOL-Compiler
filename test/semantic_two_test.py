@@ -1,6 +1,5 @@
 import pytest
 
-from main import dummy
 from main import compile
 from util.exceptions import *
 

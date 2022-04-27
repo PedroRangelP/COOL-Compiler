@@ -1,12 +1,7 @@
 import pytest
 
-from main import dummy
 from main import compile
 from util.exceptions import *
-
-def test_dummy():
-    with pytest.raises(SystemExit):
-        dummy()
 
 def test_anattributenamedself():
     with pytest.raises(anattributenamedself):
