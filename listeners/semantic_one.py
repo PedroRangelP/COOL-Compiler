@@ -19,20 +19,23 @@ class semanticOneListener(coolListener):
         self.selfTypeInformalParameter = False
 
     def enterKlass(self, ctx:coolParser.KlassContext):
-        if ctx.TYPE(0).getText() == 'Main':
+        class_type = ctx.TYPE(0).getText()
+
+        if class_type == 'Main':
             self.main = True
-        if ctx.TYPE(0).getText() == 'Int':
+        if class_type == 'Int':
             self.klassInt = True
-        if ctx.TYPE(0).getText() == 'Object':
+        if class_type == 'Object':
             self.klassObject = True
-        if ctx.TYPE(0).getText() == 'SELF_TYPE':
+        if class_type == 'SELF_TYPE':
             self.klassSelfType = True
         if ctx.TYPE(1):
-            if ctx.TYPE(1).getText() == 'Bool':
+            class_type = ctx.TYPE(1).getText()
+            if class_type == 'Bool':
                 self.klassInheritsBool = True
-            if ctx.TYPE(1).getText() == 'SELF_TYPE':
+            if class_type == 'SELF_TYPE':
                 self.klassInheritsSelf = True
-            if ctx.TYPE(1).getText() == 'String':
+            if class_type == 'String':
                 self.klassInheritsString = True
 
     def exitKlass(self, ctx:coolParser.KlassContext):
@@ -44,20 +47,20 @@ class semanticOneListener(coolListener):
         if self.klassInheritsSelf: raise inheritsselftype()
         if self.klassInheritsString: raise inheritsstring()
 
-    def enterFeature(self, ctx: coolParser.FeatureContext):
+    def enterAttribute(self, ctx: coolParser.AttributeContext):
         if ctx.ID().getText() == 'self':
             self.hasNamedSelf = True
 
-    def exitFeature(self, ctx: coolParser.FeatureContext):
+    def exitAttribute(self, ctx: coolParser.AttributeContext):
         if self.hasNamedSelf:
             raise anattributenamedself()
 
-    def enterExpr(self, ctx: coolParser.ExprContext):
+    def enterAssignment(self, ctx: coolParser.AssignmentContext):
         if ctx.ID():
             if(ctx.ID().getText() == 'self'):
                 self.selfAssignment = True
 
-    def exitExpr(self, ctx: coolParser.ExprContext):
+    def exitAssignment(self, ctx: coolParser.AssignmentContext):
         if self.selfAssignment:
             raise selfassignment()
 
