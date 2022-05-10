@@ -132,6 +132,9 @@ class semanticTwoListener(coolListener):
         # Pop the last dictionary in the array (Close a scope)
         ctx.symbol_table.closeScope()
 
-    # def exitCase_of(self, ctx: coolParser.Case_ofContext):
-    #     if ctx.case_stat(0).type == ctx.case_stat(1).type:
-    #         raise  caseidenticalbranch()  
+    def exitWhile(self, ctx: coolParser.WhileContext):
+        while_condition = ctx.expr(0)
+        while_body = ctx.expr(1)
+
+        if while_condition.type != 'Bool':
+            raise badwhilecond()
