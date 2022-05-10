@@ -138,3 +138,14 @@ class semanticTwoListener(coolListener):
 
         if while_condition.type != 'Bool':
             raise badwhilecond()
+
+    def exitCase_of(self, ctx: coolParser.Case_ofContext):
+        used_types = []
+        
+        for case_stat in ctx.case_stat():
+            case_type = case_stat.TYPE()
+
+            if case_type in used_types:
+                raise caseidenticalbranch()
+            else:
+                used_types.append(case_type)
