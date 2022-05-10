@@ -8,7 +8,7 @@ from antlr.coolParser import coolParser
 def getScope(ctx):
     parent = ctx.parentCtx
 
-    # Getting the parent nodes until we reach the symnol table of the scope
+    # Getting the parent nodes until we reach the symbol table of the scope
     while parent and (not hasattr(parent, "symbol_table")) and (not hasattr(parent, "current_klass")):
         parent = parent.parentCtx
     return parent.symbol_table, parent.current_klass
@@ -26,13 +26,16 @@ class semanticTwoListener(coolListener):
     def enterPrimary(self, ctx: coolParser.PrimaryContext):
         if ctx.ID():
             name = ctx.ID().getText()
+            # Going up the nodes until we find one which contains a symbol table (scope)
             symbol_table, current_klass = getScope(ctx)
 
             if name == "self":
                 ctx.type = current_klass.name
             
+            # Once we find the symbol table we search the name of the variable (It is a dictionary)
+            # and we obtain its type so we can assign it to our ctx.type
             if name in symbol_table:
-                ctx.type = name
+                ctx.type = symbol_table[name]
             else:
                 raise outofscope()
         
@@ -85,11 +88,50 @@ class semanticTwoListener(coolListener):
         for feature in ctx.feature():
             feature.current_klass = k
             feature.symbol_table = symbolTable
-
-    #No FUNCA AAAAAAAAA
-    def exitCase_of(self, ctx: coolParser.Case_ofContext):
-        if ctx.case_stat(0).type == ctx.case_stat(1).type:
-            raise  caseidenticalbranch()  
     
     def enterFunction(self, ctx: coolParser.FunctionContext):
-        pass
+        function_type = ctx.TYPE().getText()
+
+        # If we set the return type to be a non existant class/type
+        if function_type != 'SELF_TYPE':
+            if function_type not in _allClasses:
+                raise returntypenoexist()
+        
+        # When we return a SELF_TYPE it should have the following structure
+        # foo() : SELF_TYPE { self }
+        # Using the new keyword to instantiate the class is not valid
+        # foo() : SELF_TYPE { new Class }
+        if function_type == 'SELF_TYPE':
+            if ctx.expr().getText() != 'self':
+                raise selftypebadreturn()
+        
+        params = []
+        # Saving params if they exist in the function
+        if len(ctx.params) > 0:
+            for param in ctx.params:
+                id = param.ID().getText()
+                function_type = param.TYPE().getText()
+                params.append((id, function_type))
+            
+            method = Method(function_type, params=params)
+        else:
+            method = Method(function_type)
+
+        name = ctx.ID().getText()
+        ctx.current_klass.addMethod(name, method)
+
+        # Appending a new dictionary to the array (Opening a scope)
+        ctx.symbol_table.openScope()
+        
+        # Adding the params to the symboltable of this scope
+        for id, function_type in params:
+            ctx.symbol_table[id] = function_type
+        
+    
+    def exitFunction(self, ctx: coolParser.FunctionContext):
+        # Pop the last dictionary in the array (Close a scope)
+        ctx.symbol_table.closeScope()
+
+    # def exitCase_of(self, ctx: coolParser.Case_ofContext):
+    #     if ctx.case_stat(0).type == ctx.case_stat(1).type:
+    #         raise  caseidenticalbranch()  
