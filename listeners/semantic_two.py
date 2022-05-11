@@ -29,6 +29,9 @@ class semanticTwoListener(coolListener):
             # Going up the nodes until we find one which contains a symbol table (scope)
             symbol_table, current_klass = getScope(ctx)
 
+            # print(symbol_table)
+            # print(name)
+
             if name == "self":
                 ctx.type = current_klass.name
             
@@ -53,8 +56,6 @@ class semanticTwoListener(coolListener):
     def exitEquals(self, ctx: coolParser.EqualsContext):
         left = ctx.children[0].type
         right = ctx.children[2].type
-
-        print(f"EQUALS: Left {left}, Right {right}")
         
         if left == 'Int':
             if right == 'String':
@@ -127,6 +128,8 @@ class semanticTwoListener(coolListener):
         for id, function_type in params:
             ctx.symbol_table[id] = function_type
         
+        # print(ctx.symbol_table)
+    
     
     def exitFunction(self, ctx: coolParser.FunctionContext):
         # Pop the last dictionary in the array (Close a scope)
@@ -139,11 +142,18 @@ class semanticTwoListener(coolListener):
         if while_condition.type != 'Bool':
             raise badwhilecond()
 
+    def enterCase_stat(self, ctx: coolParser.Case_statContext):
+        name = ctx.ID().getText()
+        type = ctx.TYPE().getText()
+        
+        symbol_table, current_klass = getScope(ctx)
+        symbol_table[name] = type
+
     def exitCase_of(self, ctx: coolParser.Case_ofContext):
         used_types = []
         
         for case_stat in ctx.case_stat():
-            case_type = case_stat.TYPE()
+            case_type = case_stat.TYPE().getText()
 
             if case_type in used_types:
                 raise caseidenticalbranch()
