@@ -199,3 +199,12 @@ class semanticTwoListener(coolListener):
             keyErr = True
 
         if(keyErr): raise baddispatch()
+    
+    def enterNew_type(self, ctx: coolParser.New_typeContext):
+        ctx.type = ctx.TYPE().getText()
+
+    def enterAttribute(self, ctx: coolParser.AttributeContext):
+        name = ctx.ID().getText()
+        type = ctx.TYPE().getText()
+
+        ctx.current_klass.addAttribute(name, type)

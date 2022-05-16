@@ -26,7 +26,7 @@ expr
     | expr '.' ID '(' ( params+=expr  ( ',' params+=expr)* )? ')'                   #dispatch
     | LET let_decl ( ',' let_decl )* IN expr                                        #let_in
     | CASE expr OF (case_stat)+ ESAC                                                #case_of
-    | NEW TYPE                                                                      #args
+    | NEW TYPE                                                                      #new_type
     | '{' ( expr ';' )+ '}'                                                         #content
     | expr ( '@' TYPE )? '.' ID '(' ( params+=expr  ( ',' params+=expr)* )? ')'     #dispatch_static
     | '˜' expr                                                                      #w
