@@ -207,4 +207,26 @@ class semanticTwoListener(coolListener):
         name = ctx.ID().getText()
         type = ctx.TYPE().getText()
 
-        ctx.current_klass.addAttribute(name, type)
+        if ctx.expr():
+            try:
+            # If the method does not exist for the given class it will raise a KeyError
+                expr = ctx.expr()
+                ctx.current_klass.lookupAttribute(expr)
+            except:
+                raise attrbadinit()
+        
+        override = False
+        try:
+            # Check if the attribute already exists and store its type
+            type_lookup = ctx.current_klass.lookupAttribute(name)
+            
+            # Check if is overriding the attribute type
+            if type != type_lookup:
+                override = True
+        except:
+            # Add the attribute if not exists
+            ctx.current_klass.addAttribute(name, type)
+        
+        # If overriding raise the exeption
+        if(override): raise attroverride()
+            

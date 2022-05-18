@@ -28,3 +28,4 @@ class semanticThreeListener(coolListener):
 
         if not l_klass.conforms(r_klass):
             raise assignnoconform()
+                
