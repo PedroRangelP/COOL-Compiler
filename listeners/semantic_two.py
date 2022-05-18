@@ -126,11 +126,12 @@ class semanticTwoListener(coolListener):
         name = ctx.ID().getText()
 
         override = False
+        method_lookup = Method(function_type)
+        
         try:
             # Check if the method already exists
             method_lookup = ctx.current_klass.lookupMethod(name)
             
-            print(method_lookup)
             # Check if is overriding the method
             if method != method_lookup:
                 override = True
@@ -138,8 +139,13 @@ class semanticTwoListener(coolListener):
             # Add the method if not exists
             ctx.current_klass.addMethod(name, method)
 
-        # If overriding raise the exception
+        # If the params are different
         if override:
+            # If the number of params differs
+            if len(method_lookup.params) != len(method.params):
+                raise signaturechange()
+            
+            # If the type of the params differs
             raise overridingmethod4()
 
         # Appending a new dictionary to the array (Opening a scope)
