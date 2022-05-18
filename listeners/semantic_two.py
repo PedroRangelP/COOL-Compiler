@@ -124,7 +124,23 @@ class semanticTwoListener(coolListener):
             method = Method(function_type)
 
         name = ctx.ID().getText()
-        ctx.current_klass.addMethod(name, method)
+
+        override = False
+        try:
+            # Check if the method already exists
+            method_lookup = ctx.current_klass.lookupMethod(name)
+            
+            print(method_lookup)
+            # Check if is overriding the method
+            if method != method_lookup:
+                override = True
+        except:
+            # Add the method if not exists
+            ctx.current_klass.addMethod(name, method)
+
+        # If overriding raise the exception
+        if override:
+            raise overridingmethod4()
 
         # Appending a new dictionary to the array (Opening a scope)
         ctx.symbol_table.openScope()
