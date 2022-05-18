@@ -28,4 +28,10 @@ class semanticThreeListener(coolListener):
 
         if not l_klass.conforms(r_klass):
             raise assignnoconform()
-                
+
+    def exitLet_decl(self, ctx: coolParser.Let_declContext):
+        let_type = ctx.TYPE().getText()
+        expr_type = ctx.expr().type
+
+        if(let_type != expr_type):
+            raise letbadinit()
