@@ -112,6 +112,11 @@ class semanticTwoListener(coolListener):
             for param in ctx.params:
                 id = param.ID().getText()
                 function_type = param.TYPE().getText()
+                
+                # If the formal param has already been defined
+                if any(id in param for param in params):
+                    raise dupformals()
+                
                 params.append((id, function_type))
             
             method = Method(function_type, params=params)
