@@ -28,7 +28,7 @@ expr
     | CASE expr OF (case_stat)+ ESAC                                                #case_of
     | NEW TYPE                                                                      #new_type
     | '{' ( expr ';' )+ '}'                                                         #content
-    | expr ( '@' TYPE )? '.' ID '(' ( params+=expr  ( ',' params+=expr)* )? ')'     #dispatch_static
+    | expr ( '@' TYPE )? '.' ID '(' ( params+=expr  ( ',' params+=expr)* )? ')'     #dispatch
     | '˜' expr                                                                      #w
     | ISVOID expr                                                                   #is_void
     | expr '*' expr                                                                 #arith

@@ -1,3 +1,4 @@
+from turtle import left
 from util.exceptions import *
 from util.structure import *
 from util.structure import _allClasses
@@ -135,8 +136,20 @@ class semanticThreeListener(coolListener):
             klass_type = symbol_table[name]
         except:
             klass_type = ctx.expr(0).type
+        
+        # Check static dispatch
+        if ctx.TYPE():
+            static_klass_type = ctx.TYPE().getText()
 
-        print("KLASS TYPE: " + klass_type)
+            if klass_type in _allClasses:
+                l_klass = _allClasses[klass_type]
+            if static_klass_type in _allClasses:
+                r_klass = _allClasses[static_klass_type]
+            if not r_klass.conforms(l_klass):
+                raise badstaticdispatch()
+            else:
+                klass_type = r_klass.name
+        
         method_name = ctx.ID().getText()
 
         try:

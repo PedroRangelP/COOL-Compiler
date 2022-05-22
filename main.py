@@ -17,4 +17,4 @@ def compile(file):
     walker.walk(semanticThreeListener(), tree)
 
 if __name__ == '__main__':
-    compile('resources/semantic/input/badargs1.cool')
+    compile('resources/semantic/input/badstaticdispatch.cool')
