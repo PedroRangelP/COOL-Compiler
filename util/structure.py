@@ -50,6 +50,19 @@ class Klass():
             if up == self.name:
                 raise HierarchyException
             up = _allClasses[up].inherits
+    
+    def lookupInheritance(self):
+        up = self.inherits
+        
+        # Getting the parent class until we reach 'Object' class
+        while up != "Object":
+            # Return the parent class that is not 'Object'
+            if (_allClasses[up].inherits == "Object"):
+                return _allClasses[up].name
+            up = _allClasses[up].inherits
+        
+        # Return 'Object' as a parent class
+        return up
 
     def addAttribute(self, name, type):
         try:
