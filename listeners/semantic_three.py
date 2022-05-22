@@ -128,8 +128,9 @@ class semanticThreeListener(coolListener):
     
     def exitDispatch(self, ctx: coolParser.DispatchContext):
         symbol_table = utils.getScope(ctx)
-        
         name = ctx.expr(0).getText()
+
+        # Get the class either by the symbol table or by the attribute of the node
         try:
             klass_type = symbol_table[name]
         except:
@@ -139,9 +140,15 @@ class semanticThreeListener(coolListener):
 
         try:
             # If the method does not exist for the given class it will raise a KeyError
-            _allClasses[klass_type].lookupMethod(method_name)
+            method_lookup = _allClasses[klass_type].lookupMethod(method_name)
         except:
             raise baddispatch()
+        
+        param_idx = 0
+        for name in method_lookup.params:
+            # Check if the types of the dispatch argss are the same as the method signature
+            if (not method_lookup.params[name] == ctx.params[param_idx].type):
+                raise badargs1()
     
     def exitArith(self, ctx: coolParser.ArithContext):
         if ctx.expr(0).type != 'Int' or ctx.expr(1).type != 'Int':
