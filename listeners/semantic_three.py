@@ -7,8 +7,6 @@ from util.utils import utils
 
 class semanticThreeListener(coolListener):
     def enterPrimary(self, ctx: coolParser.PrimaryContext):
-        print("PRIMARY: " + ctx.getText())
-
         if ctx.ID():
             name = ctx.ID().getText()
             # Going up the nodes until we find one which contains a symbol table (scope)
@@ -46,7 +44,10 @@ class semanticThreeListener(coolListener):
         klass_name = ctx.TYPE().getText()
         up_klass = _allClasses[klass_name].lookupInheritance()
 
-        ctx.type = klass_name if up_klass == 'Object' else up_klass
+        if (type(ctx.parentCtx) is coolParser.PrimaryContext):
+            ctx.type = klass_name
+        else:
+            ctx.type = klass_name if up_klass == 'Object' else up_klass
 
     def exitAssignment(self, ctx: coolParser.AssignmentContext):
         symbol_table = utils.getScope(ctx)
@@ -63,74 +64,17 @@ class semanticThreeListener(coolListener):
         if not l_klass.conforms(r_klass):
             raise assignnoconform()
 
-    def enterFunction(self, ctx: coolParser.FunctionContext):
-        function_type = ctx.TYPE().getText()
-
-        # If we set the return type to be a non existant class/type
-        if function_type != 'SELF_TYPE':
-            if function_type not in _allClasses:
-                raise returntypenoexist()
-        
-        # When we return a SELF_TYPE it should have the following structure
-        # foo() : SELF_TYPE { self }
-        # Using the new keyword to instantiate the class is not valid
-        # foo() : SELF_TYPE { new Class }
-        if function_type == 'SELF_TYPE':
-            if ctx.expr().getText() != 'self':
-                raise selftypebadreturn()
-        
-        params = []
-        # Saving params if they exist in the function
-        if len(ctx.params) > 0:
-            for param in ctx.params:
-                id = param.ID().getText()
-                function_type = param.TYPE().getText()
-                
-                # If the formal param has already been defined
-                if any(id in param for param in params):
-                    raise dupformals()
-                
-                params.append((id, function_type))
-            
-            method = Method(function_type, params=params)
-        else:
-            method = Method(function_type)
-
-        name = ctx.ID().getText()
-
-        override = False
-        method_lookup = Method(function_type)
-        
-        try:
-            # Check if the method already exists
-            method_lookup = ctx.current_klass.lookupMethod(name)
-            
-            # Check if is overriding the method
-            if method != method_lookup:
-                override = True
-        except:
-            # Add the method if not exists
-            ctx.current_klass.addMethod(name, method)
-
-        # If the params are different
-        if override:
-            # If the number of params differs
-            if len(method_lookup.params) != len(method.params):
-                raise signaturechange()
-            
-            # If the type of the params differs
-            raise overridingmethod4()
-
+    def enterMethod(self, ctx: coolParser.MethodContext):
         # Appending a new dictionary to the array (Opening a scope)
         ctx.symbol_table.openScope()
         
         # Adding the params to the symboltable of this scope
-        for id, function_type in params:
-            ctx.symbol_table[id] = function_type
+        for name, type in ctx.method.params.items():
+            ctx.symbol_table[name] = type
         
         # print(ctx.symbol_table)
     
-    def exitFunction(self, ctx: coolParser.FunctionContext):
+    def exitMethod(self, ctx: coolParser.MethodContext):
         # Pop the last dictionary in the array (Close a scope)
         ctx.symbol_table.closeScope()
     
@@ -161,7 +105,7 @@ class semanticThreeListener(coolListener):
             if(let_type != expr_type):
                 raise letbadinit()
     
-    def enterMethod(self, ctx: coolParser.MethodContext):
+    def enterMethod_call(self, ctx: coolParser.Method_callContext):
         name = ctx.ID().getText()
 
         if len(ctx.params) > 0:
@@ -197,9 +141,7 @@ class semanticThreeListener(coolListener):
             # If the method does not exist for the given class it will raise a KeyError
             _allClasses[klass_type].lookupMethod(method_name)
         except:
-            keyErr = True
-
-        if(keyErr): raise baddispatch()
+            raise baddispatch()
     
     def exitArith(self, ctx: coolParser.ArithContext):
         if ctx.expr(0).type != 'Int' or ctx.expr(1).type != 'Int':

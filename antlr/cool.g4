@@ -9,7 +9,7 @@ klass
     ;
 
 feature
-    : ID '(' ( params+=formal (',' params+=formal)* )? ')' ':' TYPE '{' expr '}'    #function
+    : ID '(' ( params+=formal (',' params+=formal)* )? ')' ':' TYPE '{' expr '}'    #method
     | ID ':' TYPE ( '<-' expr )?                                                    #attribute
     ;
 
@@ -20,7 +20,7 @@ formal
 expr
     :
     primary                                                                         #expr_primary
-    | ID '(' ( params+=expr ( ',' params+=expr)* )? ')'                             #method
+    | ID '(' ( params+=expr ( ',' params+=expr)* )? ')'                             #method_call
     | IF expr THEN expr ELSE expr FI                                                #if_else
     | WHILE expr LOOP expr POOL                                                     #while
     | expr '.' ID '(' ( params+=expr  ( ',' params+=expr)* )? ')'                   #dispatch

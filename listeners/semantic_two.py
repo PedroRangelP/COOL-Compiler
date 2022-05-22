@@ -63,6 +63,67 @@ class semanticTwoListener(coolListener):
         
         # If overriding raise the exeption
         if(override): raise attroverride()
+    
+    def enterMethod(self, ctx: coolParser.MethodContext):
+        function_type = ctx.TYPE().getText()
+
+        # If we set the return type to be a non existant class/type
+        if function_type != 'SELF_TYPE':
+            if function_type not in _allClasses:
+                raise returntypenoexist()
+        
+        # When we return a SELF_TYPE it should have the following structure
+        # foo() : SELF_TYPE { self }
+        # Using the new keyword to instantiate the class is not valid
+        # foo() : SELF_TYPE { new Class }
+        if function_type == 'SELF_TYPE':
+            if ctx.expr().getText() != 'self':
+                raise selftypebadreturn()
+        
+        params = []
+        # Saving params if they exist in the function
+        if len(ctx.params) > 0:
+            for param in ctx.params:
+                param_name = param.ID().getText()
+                param_type = param.TYPE().getText()
+                
+                # If the formal param has already been defined
+                if any(param_name in param for param in params):
+                    raise dupformals()
+                
+                params.append((param_name, param_type))
+            
+            method = Method(function_type, params=params)
+        else:
+            method = Method(function_type)
+
+        name = ctx.ID().getText()
+
+        override = False
+        method_lookup = Method(function_type)
+        
+        try:
+            # Check if the method already exists
+            method_lookup = ctx.current_klass.lookupMethod(name)
+            
+            # Check if is overriding the method
+            if method != method_lookup:
+                override = True
+        except:
+            # Add the method if not exists
+            ctx.current_klass.addMethod(name, method)
+        
+        # If the params are different
+        if override:
+            # If the number of params differs
+            if len(method_lookup.params) != len(method.params):
+                raise signaturechange()
+            
+            # If the type of the params differs
+            raise overridingmethod4()
+
+        # Saving the method in this node
+        ctx.method = method
 
     def enterCase_stat(self, ctx: coolParser.Case_statContext):
         name = ctx.ID().getText()
