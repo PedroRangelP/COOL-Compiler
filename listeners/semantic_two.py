@@ -63,19 +63,19 @@ class semanticTwoListener(coolListener):
         if(override): raise attroverride()
     
     def enterMethod(self, ctx: coolParser.MethodContext):
-        function_type = ctx.TYPE().getText()
-
-        # If we set the return type to be a non existant class/type
-        if function_type != 'SELF_TYPE':
-            if function_type not in _allClasses:
-                raise returntypenoexist()
+        method_type = ctx.TYPE().getText()
         
+        # If we set the return type to be a non existant class/type
+        if method_type != 'SELF_TYPE':
+            if method_type not in _allClasses:
+                raise returntypenoexist()
+            
         # When we return a SELF_TYPE it should have the following structure
-        # foo() : SELF_TYPE { self }
+        # foo() : SELF_TYPE { self } || foo() : SELF_TYPE { new SELF_TYPE }
         # Using the new keyword to instantiate the class is not valid
         # foo() : SELF_TYPE { new Class }
-        if function_type == 'SELF_TYPE':
-            if ctx.expr().getText() != 'self':
+        if method_type == 'SELF_TYPE':
+            if ctx.expr().getText() != 'self' or ctx.expr().getText() != 'newSELF_TYPE':
                 raise selftypebadreturn()
         
         params = []
@@ -91,34 +91,31 @@ class semanticTwoListener(coolListener):
                 
                 params.append((param_name, param_type))
             
-            method = Method(function_type, params=params)
+            method = Method(method_type, params=params)
         else:
-            method = Method(function_type)
+            method = Method(method_type)
 
         name = ctx.ID().getText()
-
-        override = False
-        method_lookup = Method(function_type)
-        
+        params_override = False
+        signature_override = False
         try:
             # Check if the method already exists
             method_lookup = ctx.current_klass.lookupMethod(name)
+
+            # If the number of params differs
+            if len(method_lookup.params) != len(method.params):
+                signature_override = True
             
-            # Check if is overriding the method
-            if method != method_lookup:
-                override = True
+            # If the params are different
+            if method_lookup.params != method.params:
+                params_override = True
         except:
             # Add the method if not exists
             ctx.current_klass.addMethod(name, method)
         
-        # If the params are different
-        if override:
-            # If the number of params differs
-            if len(method_lookup.params) != len(method.params):
-                raise signaturechange()
-            
-            # If the type of the params differs
-            raise overridingmethod4()
+        # If overriding raise the exeption
+        if signature_override: raise signaturechange()
+        if params_override: raise overridingmethod4()
 
         # Saving the method in this node
         ctx.method = method
