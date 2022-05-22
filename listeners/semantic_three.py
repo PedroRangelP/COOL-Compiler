@@ -1,9 +1,9 @@
 from util.exceptions import *
 from util.structure import *
 from util.structure import _allClasses
+from util.utils import utils
 from antlr.coolListener import coolListener
 from antlr.coolParser import coolParser
-from util.utils import utils
 
 class semanticThreeListener(coolListener):
     def enterPrimary(self, ctx: coolParser.PrimaryContext):
@@ -118,7 +118,7 @@ class semanticThreeListener(coolListener):
                     paramName = ''
 
                 if (paramName == name): raise badmethodcallsitself()
-    
+
     def exitWhile(self, ctx: coolParser.WhileContext):
         while_condition = ctx.expr(0)
         while_body = ctx.expr(1)
@@ -136,6 +136,7 @@ class semanticThreeListener(coolListener):
         except:
             klass_type = ctx.expr(0).type
 
+        print("KLASS TYPE: " + klass_type)
         method_name = ctx.ID().getText()
 
         try:

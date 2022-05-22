@@ -14,3 +14,21 @@ class utils():
         while parent and (not hasattr(parent, "symbol_table")):
             parent = parent.parentCtx
         return parent.symbol_table
+
+    def getKlasses(ctx):
+        parent = ctx.parentCtx
+
+        while parent and (not hasattr(parent, "klasses_dict")):
+            parent = parent.parentCtx
+        return parent.klasses_dict
+    
+    def getInheritanceNonDefined(klasses_dic, _allClasses, klass):
+        nonDefinedKlasses = []
+        inheritance = klasses_dic[klass]
+
+        while inheritance != 'Object':
+            if inheritance not in _allClasses:
+                nonDefinedKlasses.append(inheritance)
+            inheritance = klasses_dic[inheritance]
+        
+        return nonDefinedKlasses

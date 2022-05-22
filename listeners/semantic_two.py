@@ -1,9 +1,9 @@
 from util.exceptions import *
 from util.structure import *
 from util.structure import _allClasses
+from util.utils import utils
 from antlr.coolListener import coolListener
 from antlr.coolParser import coolParser
-from util.utils import utils
 
 class semanticTwoListener(coolListener):
     def __init__(self):
@@ -12,23 +12,21 @@ class semanticTwoListener(coolListener):
         setBaseKlasses()
 
     def enterKlass(self, ctx: coolParser.KlassContext):
-        class_type1 = ctx.TYPE(0).getText()
+        klasses_dict = utils.getKlasses(ctx)
+        klass= ctx.TYPE(0).getText()
 
-        if class_type1 in _allClasses:
-            raise redefinedclass()
+        nonDefinedKlasses = utils.getInheritanceNonDefined(klasses_dict, _allClasses, klass)
 
-        # If an inherits exists
-        if ctx.TYPE(1):
-            class_type2 = ctx.TYPE(1).getText()
-            
-            # Checking if it inherits from non existing class
-            if class_type2 not in _allClasses:
-                raise missingclass()
-            else:
-                k = Klass(class_type1, class_type2)
+        while nonDefinedKlasses:
+            name = nonDefinedKlasses.pop()
+            inherits = klasses_dict[name]
+            Klass(name, inherits)
+
+        if klass in _allClasses:
+            k = _allClasses[klass]
         else:
-            k = Klass(class_type1)
-
+            k = Klass(klass, klasses_dict[klass])
+        
         symbolTable = SymbolTableWithScopes(k)
 
         ctx.current_klass = k
@@ -143,11 +141,3 @@ class semanticTwoListener(coolListener):
                 raise caseidenticalbranch()
             else:
                 used_types.append(case_type)
-
-    # def exitDispatch(self, ctx: coolParser.DispatchContext):
-    #     if len(ctx.params) > 0:
-    #         for param in ctx.params:
-    #             try:
-    #                 print(param.type)
-    #             except:
-    #                 print('No type')
