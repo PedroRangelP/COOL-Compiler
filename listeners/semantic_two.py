@@ -3,16 +3,7 @@ from util.structure import *
 from util.structure import _allClasses
 from antlr.coolListener import coolListener
 from antlr.coolParser import coolParser
-
-
-def getScope(ctx):
-    parent = ctx.parentCtx
-
-    # Getting the parent nodes until we reach the symbol table of the scope
-    while parent and (not hasattr(parent, "symbol_table")) and (not hasattr(parent, "current_klass")):
-        parent = parent.parentCtx
-    return parent.symbol_table, parent.current_klass
-
+from util.utils import utils
 
 class semanticTwoListener(coolListener):
     def __init__(self):
@@ -27,7 +18,8 @@ class semanticTwoListener(coolListener):
         if ctx.ID():
             name = ctx.ID().getText()
             # Going up the nodes until we find one which contains a symbol table (scope)
-            symbol_table, current_klass = getScope(ctx)
+            symbol_table = utils.getScope(ctx)
+            current_klass = utils.getKlass(ctx)
 
             # print(symbol_table)
             # print(name)
@@ -173,7 +165,7 @@ class semanticTwoListener(coolListener):
         name = ctx.ID().getText()
         type = ctx.TYPE().getText()
         
-        symbol_table, current_klass = getScope(ctx)
+        symbol_table = utils.getScope(ctx)
         symbol_table[name] = type
 
     def exitCase_of(self, ctx: coolParser.Case_ofContext):
@@ -189,7 +181,8 @@ class semanticTwoListener(coolListener):
                 used_types.append(case_type)
     
     def enterLet_in(self, ctx: coolParser.Let_inContext):
-        symbol_table, current_klass = getScope(ctx)
+        symbol_table = utils.getScope(ctx)
+        current_klass = utils.getKlass(ctx)
 
         # Assign the symbol table to the context of LET_IN
         ctx.symbol_table = symbol_table
@@ -210,7 +203,7 @@ class semanticTwoListener(coolListener):
         ctx.symbol_table.closeScope()
 
     def enterDispatch(self, ctx: coolParser.DispatchContext):
-        symbol_table, current_klass = getScope(ctx)
+        symbol_table = utils.getScope(ctx)
         
         # Class name: cow
         klass_name = ctx.expr(0).getText()
@@ -256,4 +249,6 @@ class semanticTwoListener(coolListener):
         
         # If overriding raise the exeption
         if(override): raise attroverride()
-            
+    
+    def enterMethod(self, ctx: coolParser.MethodContext):
+        ctx.name = ctx.ID().getText()

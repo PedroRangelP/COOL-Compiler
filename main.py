@@ -17,4 +17,4 @@ def compile(file):
     walker.walk(semanticThreeListener(), tree)
 
 if __name__ == '__main__':
-    compile('resources/semantic/input/overridingmethod4.cool')
+    compile('resources/semantic/input/badmethodcallsitself.cool')

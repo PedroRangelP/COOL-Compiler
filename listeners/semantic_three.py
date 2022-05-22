@@ -4,18 +4,11 @@ from util.structure import *
 from util.structure import _allClasses
 from antlr.coolListener import coolListener
 from antlr.coolParser import coolParser
-
-def getScope(ctx):
-    parent = ctx.parentCtx
-
-    # Getting the parent nodes until we reach the symbol table of the scope
-    while parent and (not hasattr(parent, "symbol_table")) and (not hasattr(parent, "current_klass")):
-        parent = parent.parentCtx
-    return parent.symbol_table, parent.current_klass
+from util.utils import utils
 
 class semanticThreeListener(coolListener):
     def exitAssignment(self, ctx: coolParser.AssignmentContext):
-        symbol_table, current_klass = getScope(ctx)
+        symbol_table = utils.getScope(ctx)
         
         left_type = symbol_table[ctx.ID().getText()]
         right_type = ctx.expr().type
@@ -35,3 +28,17 @@ class semanticThreeListener(coolListener):
 
         if(let_type != expr_type):
             raise letbadinit()
+    
+    def enterMethod(self, ctx: coolParser.MethodContext):
+        name = ctx.ID().getText()
+
+        if len(ctx.params) > 0:
+            for param in ctx.params:
+                paramName = ''
+
+                try:
+                    paramName = param.ID().getText()
+                except:
+                    paramName = ''
+
+                if (paramName == name): raise badmethodcallsitself()
