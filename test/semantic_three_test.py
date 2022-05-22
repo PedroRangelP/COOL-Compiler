@@ -64,5 +64,5 @@ def test_signaturechange():
 
 
 def test_trickyatdispatch2():
-    with pytest.raises(trickyatdispatch2):
+    with pytest.raises(badstaticdispatch):
         compile('resources/semantic/input/trickyatdispatch2.cool')

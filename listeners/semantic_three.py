@@ -145,8 +145,10 @@ class semanticThreeListener(coolListener):
                 l_klass = _allClasses[klass_type]
             if static_klass_type in _allClasses:
                 r_klass = _allClasses[static_klass_type]
+            
             if not r_klass.conforms(l_klass):
-                raise badstaticdispatch()
+                if klass_type != static_klass_type:
+                    raise badstaticdispatch()
             else:
                 klass_type = r_klass.name
         
