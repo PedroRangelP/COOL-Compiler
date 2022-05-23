@@ -42,13 +42,19 @@ class semanticThreeListener(coolListener):
         ctx.type = ctx.getChild(0).type
 
     def enterNew_type(self, ctx: coolParser.New_typeContext):
-        klass_name = ctx.TYPE().getText()
-        up_klass = _allClasses[klass_name].lookupInheritance()
+        klass_type = ctx.TYPE().getText()
+        current_klass = utils.getKlass(ctx)
 
-        if (type(ctx.parentCtx) is coolParser.PrimaryContext):
-            ctx.type = klass_name
+        # If its 'new SELF_TYPE' assingn the current class type
+        if klass_type == 'SELF_TYPE':
+            ctx.type = current_klass.name
         else:
-            ctx.type = klass_name if up_klass == 'Object' else up_klass
+            # If is a primary ctx assign its type, else assign the type of the upper class
+            if (type(ctx.parentCtx) is coolParser.PrimaryContext):
+                ctx.type = klass_type
+            else:
+                up_klass = _allClasses[klass_type].lookupInheritance()
+                ctx.type = klass_type if up_klass == 'Object' else up_klass
 
     def exitAssignment(self, ctx: coolParser.AssignmentContext):
         symbol_table = utils.getScope(ctx)

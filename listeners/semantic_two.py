@@ -75,8 +75,10 @@ class semanticTwoListener(coolListener):
         # Using the new keyword to instantiate the class is not valid
         # foo() : SELF_TYPE { new Class }
         if method_type == 'SELF_TYPE':
-            if ctx.expr().getText() != 'self' or ctx.expr().getText() != 'newSELF_TYPE':
-                raise selftypebadreturn()
+            print("AAAAA: " + ctx.expr().getText())
+            if ctx.expr().getText() != 'self':
+                if ctx.expr().getText() != 'newSELF_TYPE':
+                    raise selftypebadreturn()
         
         params = []
         # Saving params if they exist in the function
