@@ -6,11 +6,6 @@ from antlr.coolListener import coolListener
 from antlr.coolParser import coolParser
 
 class semanticTwoListener(coolListener):
-    def __init__(self):
-        # Clearing classes before every new test
-        _allClasses.clear()
-        setBaseKlasses()
-
     def enterKlass(self, ctx: coolParser.KlassContext):
         klasses_dict = utils.getKlasses(ctx)
         klass= ctx.TYPE(0).getText()
