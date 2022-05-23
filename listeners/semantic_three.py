@@ -58,9 +58,18 @@ class semanticThreeListener(coolListener):
 
     def exitAssignment(self, ctx: coolParser.AssignmentContext):
         symbol_table = utils.getScope(ctx)
+        current_klass = utils.getKlass(ctx)
+
+        right_expr = ctx.expr()
         
         left_type = symbol_table[ctx.ID().getText()]
-        right_type = ctx.expr().type
+        right_type = 'Object'
+
+        try:
+            right_type = right_expr.type
+        except:
+            if (type(right_expr) is coolParser.Method_callContext):
+                 right_type = current_klass.lookupMethod(right_expr.ID().getText()).type
 
         if left_type in _allClasses:
             l_klass = _allClasses[left_type]
