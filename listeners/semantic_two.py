@@ -40,13 +40,19 @@ class semanticTwoListener(coolListener):
             expr = ctx.expr()
 
             # If the assigment is a defined attribute (if it has ID)
-            if (expr.getChild(0).ID()):
-                try:
-                # If the attribute does not exist for the given class it will raise a KeyError
-                    ctx.current_klass.lookupAttribute(expr.getText())
-                except:
-                    raise attrbadinit()
-        
+            attr_badinit = False
+            try:
+                if (expr.getChild(0).ID()):
+                    try:
+                    # If the attribute does not exist for the given class it will raise a KeyError
+                        ctx.current_klass.lookupAttribute(expr.getText())
+                    except:
+                        attr_badinit = True
+            except:
+                pass
+            
+            if attr_badinit: raise attrbadinit()
+
         override = False
         try:
             # Check if the attribute already exists and store its type
