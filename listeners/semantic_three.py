@@ -168,9 +168,13 @@ class semanticThreeListener(coolListener):
         
         param_idx = 0
         for name in method_lookup.params:
-            # Check if the types of the dispatch argss are the same as the method signature
-            if (not method_lookup.params[name] == ctx.params[param_idx].type):
-                raise badargs1()
+            signature_klass = _allClasses[method_lookup.params[name]]
+            input_klass = _allClasses[ctx.params[param_idx].type]
+
+            # Check if the types of the dispatch args are the same as the method signature
+            if not signature_klass.conforms(input_klass): 
+                    raise badargs1()
+            param_idx += 1
     
     def exitArith(self, ctx: coolParser.ArithContext):
         if ctx.expr(0).type != 'Int' or ctx.expr(1).type != 'Int':
