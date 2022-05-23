@@ -1,3 +1,4 @@
+from cmath import exp
 from util.exceptions import *
 from util.structure import *
 from util.structure import _allClasses
@@ -29,30 +30,34 @@ class semanticTwoListener(coolListener):
         for feature in ctx.feature():
             feature.current_klass = k
             feature.symbol_table = symbolTable
-    
-    def enterAttribute(self, ctx: coolParser.AttributeContext):
-        name = ctx.ID().getText()
-        type = ctx.TYPE().getText()
 
+    def enterAttribute(self, ctx: coolParser.AttributeContext):
+        attr_name = ctx.ID().getText()
+        attr_type = ctx.TYPE().getText()
+
+        # Check assignment
         if ctx.expr():
-            try:
-            # If the method does not exist for the given class it will raise a KeyError
-                expr = ctx.expr()
-                ctx.current_klass.lookupAttribute(expr)
-            except:
-                raise attrbadinit()
+            expr = ctx.expr()
+
+            # If the assigment is a defined attribute (if it has ID)
+            if (expr.getChild(0).ID()):
+                try:
+                # If the attribute does not exist for the given class it will raise a KeyError
+                    ctx.current_klass.lookupAttribute(expr.getText())
+                except:
+                    raise attrbadinit()
         
         override = False
         try:
             # Check if the attribute already exists and store its type
-            type_lookup = ctx.current_klass.lookupAttribute(name)
+            type_lookup = ctx.current_klass.lookupAttribute(attr_name)
             
             # Check if is overriding the attribute type
-            if type != type_lookup:
+            if attr_type != type_lookup:
                 override = True
         except:
             # Add the attribute if not exists
-            ctx.current_klass.addAttribute(name, type)
+            ctx.current_klass.addAttribute(attr_name, attr_type)
         
         # If overriding raise the exeption
         if(override): raise attroverride()
