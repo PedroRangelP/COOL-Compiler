@@ -107,10 +107,10 @@ class semanticTwoListener(coolListener):
             # If the number of params differs
             if len(method_lookup.params) != len(method.params):
                 signature_override = True
-            
-            # If the params are different
-            if method_lookup.params != method.params:
-                params_override = True
+            else:
+                # If the params types are different
+                if list(method_lookup.params.values()) != list(method.params.values()):
+                    params_override = True
         except:
             # Add the method if not exists
             ctx.current_klass.addMethod(name, method)
