@@ -69,7 +69,7 @@ class semanticThreeListener(coolListener):
             right_type = right_expr.type
         except:
             if (type(right_expr) is coolParser.Method_callContext):
-                 right_type = current_klass.lookupMethod(right_expr.ID().getText()).type
+                right_type = current_klass.lookupMethod(right_expr.ID().getText()).type
 
         if left_type in _allClasses:
             l_klass = _allClasses[left_type]
@@ -137,7 +137,6 @@ class semanticThreeListener(coolListener):
 
     def exitWhile(self, ctx: coolParser.WhileContext):
         while_condition = ctx.expr(0)
-        while_body = ctx.expr(1)
 
         if while_condition.type != 'Bool':
             raise badwhilecond()

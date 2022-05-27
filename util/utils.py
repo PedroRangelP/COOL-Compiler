@@ -1,4 +1,6 @@
 class utils():
+    terminal_symbols = [";", "}", ")"]
+
     def getKlass(ctx):
         parent = ctx.parentCtx
 

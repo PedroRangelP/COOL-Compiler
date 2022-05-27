@@ -1,4 +1,3 @@
-from cmath import exp
 from util.exceptions import *
 from util.structure import *
 from util.structure import _allClasses
@@ -81,10 +80,35 @@ class semanticTwoListener(coolListener):
         # Using the new keyword to instantiate the class is not valid
         # foo() : SELF_TYPE { new Class }
         if method_type == 'SELF_TYPE':
-            print("AAAAA: " + ctx.expr().getText())
-            if ctx.expr().getText() != 'self':
-                if ctx.expr().getText() != 'newSELF_TYPE':
-                    raise selftypebadreturn()
+            child_count = ctx.expr().getChildCount()
+
+            has_self_return = False
+
+            # Massive Expression as child
+            if(child_count == 1):
+                massive = ctx.expr().getChild(0).getText()
+                if("self" in massive or "newSELF_TYPE" in massive):
+                    has_self_return = True
+            else:
+                # Iterating the expressionns from last to first
+                for i in range(child_count-1, -1, -1):
+                    # curr_expr = child.getChild(i).getText()
+                    curr_expr = ctx.expr().getChild(i).getText()
+                    print(curr_expr)
+                    
+                    # If the expression is "}", ")" or ";" we skip it
+                    if curr_expr not in utils.terminal_symbols:
+                        if curr_expr == 'self':
+                            has_self_return = True
+                            break
+                        if curr_expr == 'SELF_TYPE':
+                            # if child.getChild(i-1).getText() == 'new':
+                            if ctx.expr().getChild(i-1).getText() == 'new':
+                                has_self_return = True
+                                break
+
+            if not has_self_return:
+                raise selftypebadreturn()
         
         params = []
         # Saving params if they exist in the function
@@ -116,7 +140,7 @@ class semanticTwoListener(coolListener):
             else:
                 # If the params types are different
                 if list(method_lookup.params.values()) != list(method.params.values()):
-                    params_override = True
+                    params_override = True 
         except:
             # Add the method if not exists
             ctx.current_klass.addMethod(name, method)
