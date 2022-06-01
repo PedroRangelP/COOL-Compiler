@@ -157,7 +157,8 @@ class semanticTwoListener(coolListener):
         type = ctx.TYPE().getText()
         
         symbol_table = utils.getScope(ctx)
-        symbol_table[name] = type
+        if name not in symbol_table:
+            symbol_table[name] = type
 
     def exitCase_of(self, ctx: coolParser.Case_ofContext):
         used_types = []

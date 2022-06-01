@@ -76,7 +76,7 @@ class semanticThreeListener(coolListener):
 
         if right_type in _allClasses:
             r_klass = _allClasses[right_type]
-
+        
         if not l_klass.conforms(r_klass):
             raise assignnoconform()
 
@@ -110,9 +110,12 @@ class semanticThreeListener(coolListener):
             ctx.symbol_table[decl_id] = decl_type
     
     def exitLet_in(self, ctx: coolParser.Let_inContext):
+        # Assigning the type of the last expression in the symbol table
+        ctx.type = list(ctx.symbol_table.values())[-1]
+        
         # Pop the last dictionary in the array (Close a scope)
         ctx.symbol_table.closeScope()
-
+        
     def exitLet_decl(self, ctx: coolParser.Let_declContext):
         let_type = ctx.TYPE().getText()
         
@@ -123,6 +126,14 @@ class semanticThreeListener(coolListener):
     
     def enterMethod_call(self, ctx: coolParser.Method_callContext):
         name = ctx.ID().getText()
+        current_klass = utils.getKlass(ctx)
+
+        try:
+            # If the method does not exist for the given class it will raise a KeyError
+            method_lookup = _allClasses[current_klass.name].lookupMethod(name)
+            ctx.type = method_lookup.type
+        except:
+            pass
 
         if len(ctx.params) > 0:
             for param in ctx.params:
@@ -183,10 +194,14 @@ class semanticThreeListener(coolListener):
             if not signature_klass.conforms(input_klass): 
                     raise badargs1()
             param_idx += 1
+        
+        ctx.type = method_lookup.type
     
     def exitArith(self, ctx: coolParser.ArithContext):
         if ctx.expr(0).type != 'Int' or ctx.expr(1).type != 'Int':
             raise badarith()
+        
+        ctx.type = 'Int'
     
     def exitEquals(self, ctx: coolParser.EqualsContext):
         left = ctx.children[0].type

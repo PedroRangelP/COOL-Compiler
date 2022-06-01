@@ -20,4 +20,4 @@ def compile(file):
     walker.walk(TreePrinter(), tree)
 
 if __name__ == '__main__':
-    compile('resources/semantic/input/simplearith.cool')
+    compile('resources/semantic/input/hairyscary.cool')
