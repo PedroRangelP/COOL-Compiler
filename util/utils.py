@@ -34,3 +34,10 @@ class utils():
             inheritance = klasses_dic[inheritance]
         
         return nonDefinedKlasses
+
+    def validArith(ctx):
+        if ctx.expr(0).type != 'Int' or ctx.expr(1).type != 'Int':
+            return False
+            
+        ctx.type = 'Int'
+        return True

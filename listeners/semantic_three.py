@@ -196,13 +196,23 @@ class semanticThreeListener(coolListener):
             param_idx += 1
         
         ctx.type = method_lookup.type
+
+    def exitMultiply(self, ctx: coolParser.MultiplyContext):
+        if not (utils.validArith(ctx)):
+            raise badarith()
     
-    def exitArith(self, ctx: coolParser.ArithContext):
-        if ctx.expr(0).type != 'Int' or ctx.expr(1).type != 'Int':
+    def exitDivide(self, ctx: coolParser.DivideContext):
+        if not (utils.validArith(ctx)):
+            raise badarith()
+
+    def exitSubstract(self, ctx: coolParser.SubstractContext):
+        if not (utils.validArith(ctx)):
+            raise badarith()
+
+    def exitSum(self, ctx: coolParser.SumContext):
+        if not (utils.validArith(ctx)):
             raise badarith()
         
-        ctx.type = 'Int'
-    
     def exitEquals(self, ctx: coolParser.EqualsContext):
         left = ctx.children[0].type
         right = ctx.children[2].type
