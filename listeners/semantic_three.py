@@ -38,6 +38,12 @@ class semanticThreeListener(coolListener):
         if ctx.expr():
             ctx.type = ctx.expr().type
     
+    def exitAttribute(self, ctx: coolParser.AttributeContext):
+        if ctx.expr():
+            ctx.type = ctx.expr().type
+        else:
+            ctx.type = ctx.TYPE().getText()
+    
     def exitExpr_primary(self, ctx: coolParser.Expr_primaryContext):
         ctx.type = ctx.getChild(0).type
 

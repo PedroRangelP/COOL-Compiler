@@ -6,8 +6,8 @@ from listeners.semantic_one import semanticOneListener
 from listeners.semantic_two import semanticTwoListener
 from listeners.semantic_three import semanticThreeListener
 from listeners.semantic_tree import TreePrinter
-# from listeners.datasegment import DataGenerator
-# from listeners.textsegment import TextGenerator
+from listeners.datasegment import DataGenerator
+from listeners.textsegment import TextGenerator
 
 def compile(file):
     parser = coolParser(CommonTokenStream(coolLexer(FileStream(file))))

@@ -1,8 +1,7 @@
 from antlr.coolListener import coolListener
 from antlr.coolParser import coolParser
 
-from util.asm import asm
-
+import util.asm as asm
 
 class TextGenerator(coolListener):
     def __init__(self):

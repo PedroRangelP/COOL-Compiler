@@ -1,8 +1,7 @@
 from antlr.coolListener import coolListener
 from antlr.coolParser import coolParser
 
-from util.asm import asm
-
+import util.asm as asm
 
 class DataGenerator(coolListener):
     def __init__(self):
@@ -11,6 +10,14 @@ class DataGenerator(coolListener):
 
     def enterProgram(self, ctx: coolParser.ProgramContext):
         self.result += asm.tpl_start_data
+
+    def enterAttribute(self, ctx: coolParser.AttributeContext):
+        type = ctx.type
+        if type == 'Int':
+            self.result += asm.tpl_var_decl.substitute(
+                varname=ctx.ID().getText()
+            )
+        ctx.code = ''
 
     def enterDeclaracion(self, ctx: coolParser.DeclaracionContext):
         self.result += asm.tpl_var_decl.substitute(
