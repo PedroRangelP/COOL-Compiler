@@ -24,6 +24,8 @@ class Method():
             for x, y in params:
                 self.params[x] = y
 
+
+
 class Klass():
     """
     Agrupación de features (atributos y métodos).

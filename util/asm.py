@@ -1,47 +1,71 @@
 from string import Template
 
 tpl_start_text = """
-    .text                                   # INICIA SEGMENTO DE TEXTO (CODIGO)"""
+    .text                                   # STARTS TEXT SEGMENT (CODE)"""
 
 tpl_start_data = """
-    .data                                   # INICIA SEGMENTO DE DATOS (VARIABLES)"""
+    .data                                   # STARTS DATA SEGMENT (VARIABLES)"""
 
-tpl_var_decl = Template("""
-$varname:   .word 0                         # variable valor inicial 0""")
+tpl_attribute = Template("""
+$varname:   .word $value                    # Variable declaration""")
+
+tpl_attribute_string = Template("""
+$varname:   .asciiz $value                  # String declaration""")
+
+tpl_assignment = Template("""
+$prev
+    sw      $$a0        $name               # Save value""")
+
+tpl_dispatch_table = Template("""
+    dt_${name}:    $methods:"""
+)
+
+tpl_name_table = Template("""
+    dt_${name}:   """
+)
+
+tpl_prot_obj = Template("""
+${klass_name}_protObj:
+    .word   $klass_tag
+    .word   $object_size
+    .word   $dispatch_pointer""")
+
+tpl_prot_obj_attribute = Template("""
+    .word   $attribute""")
 
 tpl_end = """
     li	    $v0     10                      # 10 para terminar la emulación
     syscall"""
 
 tpl_immediate = Template("""
-    li      $$a0    $immediate              # Cargar valor inmediato""")
+    li      $$a0    $immediate              # Load immediate value""")
 
-tpl_suma = Template("""
+tpl_sum = Template("""
 $left
-    sw      $$a0    0($$sp)                 # suma: salvar en el stack
+    sw      $$a0    0($$sp)                 # sum: save in the stack
     addiu   $$sp    $$sp        -4
 $right
-    lw      $$t1    4($$sp)                 # suma: recuperar resultado parcial anterior
-    addiu   $$sp    $$sp        4           # suma: pop
-    add     $$a0    $$a0        $$t1        # suma: operar""")
+    lw      $$t1    4($$sp)                 # sum: retrieve partial previous result
+    addiu   $$sp    $$sp        4           # sum: pop
+    add     $$a0    $$a0        $$t1        # sum: operate""")
 
-tpl_resta = Template("""
+tpl_substract = Template("""
 $left
-    sw      $$a0    0($$sp)                 # resta: salvar en el stack
+    sw      $$a0    0($$sp)                 # substract: save in the stack
     addiu   $$sp    $$sp        -4
 $right
-    lw      $$t1    4($$sp)                 # resta: recuperar resultado parcial anterior
-    addiu   $$sp    $$sp        4           # resta: pop
-    sub     $$a0    $$t1        $$a0        # resta: operar""")
+    lw      $$t1    4($$sp)                 # substract: retrieve partial previous result
+    addiu   $$sp    $$sp        4           # substract: pop
+    sub     $$a0    $$t1        $$a0        # substract: operate""")
 
-tpl_menorque = Template("""
+tpl_less_than = Template("""
 $left
-    sw      $$a0    0($$sp)                 # resta: salvar en el stack
+    sw      $$a0    0($$sp)                 # substract: save in the stack
     addiu   $$sp    $$sp        -4
 $right
-    lw      $$t1    4($$sp)                 # resta: recuperar resultado parcial anterior
-    addiu   $$sp    $$sp        4           # resta: pop
-    blt     $$t1    $$a0        lt$n        # resta: branch if lt
+    lw      $$t1    4($$sp)                 # substract: retrieve partial previous result
+    addiu   $$sp    $$sp        4           # substract: pop
+    blt     $$t1    $$a0        lt$n        # substract: branch if lt
     li      $$a0    0
     j       label_exit_lt$n
 lt$n:
@@ -51,74 +75,67 @@ label_exit_lt$n:
 
 tpl_print_int = Template("""
 $prev
-	li	    $$v0     1                      # para imprimir enteros
-	syscall			                        # imprimir""")
+	li	    $$v0     1                      # Print integers
+	syscall			                        # Print""")
 
 tpl_print_str = Template("""
 $prev
-	li	    $$v0     4                      # para imprimir cadenas
-	syscall			                        # imprimir""")
+	li	    $$v0     4                      # Print String
+	syscall			                        # Print""")
 
 tpl_var = Template("""
-    lw      $$a0        $name               # Usar variable""")
+    lw      $$a0        $name               # Use variable""")
 
 tpl_var_from_stack = Template("""
-    lw      $$a0        $offset($$fp)      # Referencia a $name
+    lw      $$a0        $offset($$fp)       # Reference to $name
 """)
 
-tpl_asignacion = Template("""
+tpl_assign_from_stack = Template("""
 $prev
-    sw      $$a0        $name               # Guardar valor""")
-
-tpl_asignacion_from_stack = Template("""
-$prev
-    sw      $$a0        $offset($$fp)      # Referencia a $name
+    sw      $$a0        $offset($$fp)       # Reference to $name
 """)
-
-tpl_string_const_decl = Template("""
-$name:      .asciiz $content                # Declaración de string""")
 
 tpl_string_const = Template("""
-    la      $$a0        $name               # Cargar dirección de variable""")
+    la      $$a0        $name               # Load variable address""")
 
 tpl_if = Template("""
 $prev
-    beqz    $$a0        label$n             # if: el predicado es 0?
+    beqz    $$a0        label$n             # if: predicate is 0?
 $stmt_true
-label$n:                                    # if: salir""")
+label$n:                                    # if: exit""")
 
 tpl_if_else = Template("""
 $prev
-    beqz    $$a0        label$n             # if-else: el predicado es 0?
+    beqz    $$a0        label$n             # if-else: predicate is 0?
 $stmt_true
-    j       labelexit$n                     # if-else: ir a salir
-label$n:                                    # if-else: sentencia else
+    j       labelexit$n                     # if-else: go to exit
+label$n:                                    # if-else: else case
 $stmt_false
-labelexit$n:                                # if-else: etiqueta salir""")
+labelexit$n:                                # if-else: exit label""")
 
 tpl_while = Template("""
-label_test$n:                               # while: etiqueta inicio
+label_test$n:                               # while: start label
 $test
-    beqz    $$a0   label_exit$n             # while: el predicado es 0?
+    beqz    $$a0   label_exit$n             # while: predicate is 0?
 $stmt
-    j       label_test$n                    # while: regresar al inicio
-label_exit$n:                               # while: etiqueta fin while""")
+    j       label_test$n                    # while: return to the start
+label_exit$n:                               # while: end while label""")
 
 tpl_procedure = Template("""
 $name:
-    addiu   $$sp    $$sp        -$frame_size  # function $name: recalcular stack
-    sw      $$ra    8($$sp)                  # function $name: prolog, salvar ra
-    sw      $$fp    4($$sp)                  # function $name: prolog, salvar fp
+    addiu   $$sp    $$sp        -$frame_size  # function $name: recalculate stack
+    sw      $$ra    8($$sp)                  # function $name: prolog, save ra
+    sw      $$fp    4($$sp)                  # function $name: prolog, save fp
     addiu   $$fp    $$sp        $frame_size
      
 $code
-    lw      $$fp    4($$sp)                 # function $name: postlog, restaurar fp
-    lw      $$ra    8($$sp)                 # function $name: postlog, restaurar ra
-    addiu   $$sp    $$sp        $stack_size # pop de fp, ra, locals, params
-    jr      $$ra                            # function $name: regresar a caller""")
+    lw      $$fp    4($$sp)                 # function $name: postlog, restore fp
+    lw      $$ra    8($$sp)                 # function $name: postlog, restore ra
+    addiu   $$sp    $$sp        $stack_size # pop fp, ra, locals, params
+    jr      $$ra                            # function $name: return to caller""")
 
 tpl_push_arg = """
-    sw      $a0    0($sp)                   # call: salvar param en el stack
+    sw      $a0    0($sp)                   # call: save param in the stack
     addiu   $sp    $sp          -4"""
 
 tpl_call = Template("""

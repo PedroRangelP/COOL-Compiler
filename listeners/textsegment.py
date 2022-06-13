@@ -17,7 +17,7 @@ class TextGenerator(coolListener):
             self.result += c.code
         self.result += asm.tpl_end
 
-    def exitPrimaria(self, ctx: coolParser.PrimariaContext):
+    def exitPrimaria(self, ctx: coolParser.PrimaryContext):
         self.stack.append(
             asm.tpl_immediate.substitute(immediate=ctx.getText())
         )
