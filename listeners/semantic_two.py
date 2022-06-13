@@ -164,6 +164,7 @@ class semanticTwoListener(coolListener):
         used_types = []
         
         for case_stat in ctx.case_stat():
+            ctx.type = case_stat.TYPE()
             case_type = case_stat.TYPE().getText()
 
             # Check if there are multiple branches with the same type

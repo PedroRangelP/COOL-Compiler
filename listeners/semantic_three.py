@@ -222,6 +222,7 @@ class semanticThreeListener(coolListener):
     def exitEquals(self, ctx: coolParser.EqualsContext):
         left = ctx.children[0].type
         right = ctx.children[2].type
+        ctx.type = left
         
         if left == 'Int':
             if right == 'String':
