@@ -23,13 +23,13 @@ def compile(file):
     walker.walk(semanticThreeListener(), tree)
     walker.walk(TreePrinter(), tree)
 
-    # Por las constantes, ahora dataGen debe ir ANTES
-    walker.walk(dataGen, tree)
-    # walker.walk(textGen, tree)
+    # # Por las constantes, ahora dataGen debe ir ANTES
+    # walker.walk(dataGen, tree)
+    # # walker.walk(textGen, tree)
 
-    with open('test.asm', "w") as writer:
-        writer.write(dataGen.result)
-        # writer.write(textGen.result)
+    # with open('test.asm', "w") as writer:
+    #     writer.write(dataGen.result)
+    #     # writer.write(textGen.result)
 
 if __name__ == '__main__':
-    compile('resources/semantic/input/test.cool')
+    compile('resources/semantic/input/hairyscary.cool')

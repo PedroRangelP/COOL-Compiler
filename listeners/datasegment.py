@@ -42,12 +42,12 @@ class DataGenerator(coolListener):
         for name in allClasses.keys():
             self.result += asm.tpl_dispatch_table.substitute(
                 name = name, 
-                methods = getMethods(lookupClass(name).methods)
+                methods = self.getMethods(lookupClass(name).methods)
             )
     
     def createClassNameTable (self):
         for name in allClasses.keys():
-            self.result += asm.tpl_classname_table.substitute(
+            self.result += asm.tpl_name_table.substitute(
                 name = name
                 )
             
@@ -55,64 +55,63 @@ class DataGenerator(coolListener):
     def exitProgram(self, ctx: coolParser.ProgramContext):
         self.createClassNameTable()
         self.createDispatchTable()
-        self.genGlobalData()
         self.heapStart()
 
-def createPrototype(self):
-    for klass_name in allClasses.keys():
-        print(klass_name)
-        # offset 0 Class tag
-        # offset 4 Object size (in 32-bit words)
-        # offset 8 Dispatch pointer
-        # offset 12. . . Attributes 
+    def createPrototype(self):
+        for klass_name in allClasses.keys():
+            print(klass_name)
+            # offset 0 Class tag
+            # offset 4 Object size (in 32-bit words)
+            # offset 8 Dispatch pointer
+            # offset 12. . . Attributes 
 
-        self.result += asm.tpl_prot_obj.substitute(
-            Klass_tag=klass_name,
-            object_size=getObjSize(lookupClass(klass_name)),
-            dispatch_pointer=klass_name + "_dipatch"
-        )
-
-        attributes = lookupClass(klass_name).attributes
-        
-        for attr_name in attributes.keys():
-            # Assembly template
-            self.result += asm.tpl_prot_obj_attribute.substitute(
-                attribute = attr_name
+            self.result += asm.tpl_prot_obj.substitute(
+                Klass_tag=klass_name,
+                object_size = self.getObjSize(lookupClass(klass_name)),
+                dispatch_pointer=klass_name + "_dipatch"
             )
 
-        # Get all of the object attributes and methods
+            attributes = lookupClass(klass_name).attributes
+            
+            for attr_name in attributes.keys():
+                # Assembly template
+                self.result += asm.tpl_prot_obj_attribute.substitute(
+                    attribute = attr_name
+                )
 
-def getMethods (methodTable):
-    methods = []
-    for method in methodTable.keys():
-        methods.append(method)
+            # Get all of the object attributes and methods
+
+    def getMethods (self, methodTable):
+        methods = []
+        for method in methodTable.keys():
+            methods.append(method)
+            
+        return methods
+
+    def getObjSize (self, klass):
+        sizes_by_klass = {
+            'Object': 3,
+            'IO': 3,
+            'Int': 4,
+            'Bool': 4,
+            'String': 4,
+        }
         
-    return methods
+        size = 0
+        current_klass = klass
+        
+        # Size based in number of attributes
+        while current_klass.name not in sizes_by_klass:
+            size += len(current_klass.attributes)
+            current_klass = allClasses(current_klass.inherits)
 
-def getObjSize (klass):
-    sizes_by_klass = {
-        'Object': 3,
-        'IO': 3,
-        'Int': 4,
-        'Bool': 4,
-        'String': 4,
-    }
-    
-    size = 0
-    current_klass = klass
-    
-    # Size based in number of attributes
-    while current_klass.name not in sizes_by_klass:
-        size += len(current_klass.attributes)
-        current_klass = allClasses(current_klass.inherits)
+        size += sizes_by_klass[current_klass.name]
 
-    size += sizes_by_klass[current_klass.name]
+        return size
 
-    return size
-
-def heapStart(self):
-    self.result += """
-        .globl heap_start
-            heap_start
-            .word 0
-    """
+    def heapStart(self):
+        self.result += """
+            .globl heap_start
+                heap_start
+                .word 0
+        """
